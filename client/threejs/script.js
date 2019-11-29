@@ -332,9 +332,9 @@ function onDocumentMouseDown( event ) {
         }
         send_val = JSON.stringify(send_val);
         sock.send(send_val);
-        for(var i = 0; i < LEDNUM; i++) {
-            leds[i].visible = false;
-        }
+        // for(var i = 0; i < LEDNUM; i++) {
+        //     leds[i].visible = false;
+        // }
     }else if(mode == 1) {
         cloud_light.visible = true;
         var send_val = {
@@ -348,11 +348,11 @@ function onDocumentMouseDown( event ) {
         cloud_light = new THREE.PointLight(light_cool,4.5, 3 );
         cloud_light.add( new THREE.Mesh( leds_sphere, new THREE.MeshBasicMaterial( { color: 0xff0000 } ) ) );
         scene.add( cloud_light );
-        for(var i = 0; i < LEDNUM; i++) {
-            if(lights_data[i]['state']) {
-                leds[i].visible = true;
-            }
-        }
+        // for(var i = 0; i < LEDNUM; i++) {
+        //     if(lights_data[i]['state']) {
+        //         leds[i].visible = true;
+        //     }
+        // }
 
     }else if(mode == 2){
         var send_val = {

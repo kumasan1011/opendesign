@@ -21,7 +21,7 @@ LEDNUM = 13
 CLOUD_LED = 60
 mode = 0
 tape_att = 0.5
-points_att = 0.5
+points_att = 0.3
 
 color = (int(random.random() * 205 + 50), int(random.random() * 205 + 50), int(random.random() * 205 + 50))
 send_color = '#%02X%02X%02X' % (color[0],color[1],color[2])
