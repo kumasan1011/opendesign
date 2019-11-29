@@ -1,3 +1,4 @@
+
 if (!Detector.webgl) Detector.addGetWebGLMessage();
 
 var container, stats;
@@ -11,7 +12,19 @@ var b_light;  // on or off
 var lights_data = [];
 var cloud_light, leds_sphere;
 const LEDNUM = 4;
-var randomColor = "#";
+const light_weathers = [
+    "#8080a0",
+    "#80ffff",
+    "#0080ff",
+    "#ffc832",
+    "#326464",
+    "#329696",
+    "#323232"
+];
+const light_weather = light_weathers[Math.floor(Math.random() * light_weathers.length)];
+const light_cool = "#c8e6ff";
+const light_warm = "#ffb478";
+var mode = 0;
 
 var leds = [];
 var leds_pos = [];
@@ -24,13 +37,14 @@ sock.onopen = function(e) {
     console.log('Socket接続完了');
     var send_val = {
         state : false,
-        color : randomColor
+        color : light_weather
     }
     send_val = JSON.stringify(send_val);
     sock.send(send_val); 
 }
 sock.onmessage = function(e) {
   r_lightsdata(e.data);
+  console.log(e.data);
 }
 sock.onerror = function(e) {
   console.log("error");
@@ -57,12 +71,10 @@ function r_lightsdata(data) {
                 leds_sphere = new THREE.SphereBufferGeometry( 0.005, 16, 8 );
                 for(var i = 0; i < lights_data.length; ++i) {
                     var c = lights_data[i]['color'];
-                    console.log(c);
-                    leds[i] = new THREE.PointLight( c, 2, 0.15 );
+                    leds[i] = new THREE.PointLight( c, 2, 0.2 );
                     leds[i].add( new THREE.Mesh( leds_sphere, new THREE.MeshBasicMaterial( { color: c } ) ) );
                     scene.add(leds[i]);
                     leds[i].position.set(leds_pos[i][0], leds_pos[i][1], leds_pos[i][2]);
-
                     if(!lights_data[i]['state']) {
                         leds[i].visible = false;
                     }else{
@@ -76,7 +88,13 @@ function r_lightsdata(data) {
                     is_new = false;
                     lights_data[i]['state'] = json['state'];
                     if(json['state'] == true) {
-                        leds[i].visible = true;
+                        // leds[i].visible = true;
+                        scene.remove( leds[i] );
+                        var c = json['color'];
+                        leds[i] = new THREE.PointLight( c, 2, 0.2 );
+                        leds[i].add( new THREE.Mesh( leds_sphere, new THREE.MeshBasicMaterial( { color: c } ) ) );
+                        scene.add(leds[i]);
+                        leds[i].position.set(leds_pos[i][0], leds_pos[i][1], leds_pos[i][2]);
                     }else{
                         leds[i].visible = false;
                     }
@@ -124,7 +142,7 @@ function init() {
     // cloud object
 
     var loader = new THREE.STLLoader();
-    loader.load( 'data/666.stl', function ( geometry ) {
+    loader.load( 'data/cloud.stl', function ( geometry ) {
 
         var cloud_mat = new THREE.MeshPhongMaterial( {
             color: 0xeeeeff,
@@ -136,10 +154,9 @@ function init() {
         } );
 
         var cloud_visible = new THREE.Mesh( geometry, cloud_mat );
-
-        cloud_visible.position.set( -0.3, -0.05, 0 );
+        cloud_visible.position.set( -0.28, 0, 0.1 );
         cloud_visible.scale.set( 0.003, 0.003, 0.003 );
-
+        // cloud_visible.rotation.set(-1.3, 0, -0.7);
         cloud_visible.castShadow = true;
         cloud_visible.receiveShadow = true;
         // cloud_visible.visible = false;
@@ -150,24 +167,10 @@ function init() {
 
     // rope
     var rope_mesh = new THREE.Mesh(
-        new THREE.CylinderGeometry( 0.003, 0.003, 0.35, 32 ), 
+        new THREE.CylinderGeometry( 0.003, 0.003, 0.35, 8 ), 
         new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x101010 } )
     );
     rope_mesh.position.y = -0.4;
-    rope_mesh.position.x = 0.25;
-
-
-    rope_mesh.receiveShadow = true;
-    rope_mesh.castShadow = true;
-    // rope_mesh.rotation.z = -Math.PI/2;
-
-    scene.add( rope_mesh );
-
-    var rope_mesh = new THREE.Mesh(
-        new THREE.CylinderGeometry( 0.007, 0.007, 0.03, 32 ), 
-        new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x101010 } )
-    );
-    rope_mesh.position.y = -0.56;
     rope_mesh.position.x = 0.25;
 
 
@@ -213,11 +216,7 @@ function init() {
 
     // leds
     leds_sphere = new THREE.SphereBufferGeometry( 0.005, 16, 8 );
-    for(var i  =0; i < 6; i++) {
-        randomColor += "0123456789abcdef"[16 * Math.random() | 0]
-    }
-
-    cloud_light = new THREE.PointLight( randomColor,4.5, 3 );
+    cloud_light = new THREE.PointLight( light_weather,4.5, 3 );
     cloud_light.add( new THREE.Mesh( leds_sphere, new THREE.MeshBasicMaterial( { color: 0xff0000 } ) ) );
     scene.add( cloud_light );
     cloud_light.visible = false;
@@ -225,9 +224,9 @@ function init() {
     // for(var i = 0; i < LEDNUM; i++) {
     //     leds[i] = new THREE.PointLight( 0xffffff, 2, 0.15 );
     //     leds[i].add( new THREE.Mesh( leds_sphere, new THREE.MeshBasicMaterial( { color: 0xffffff } ) ) );
-    //     // leds[i].position.z = 0.1;
-    //     // leds[i].visible = false;
-    //     // scene.add(leds[i]);
+    //     leds[i].position.z = 0.1;
+    //     leds[i].visible = true;
+    //     scene.add(leds[i]);
     // }
     // leds[7].position.set(0.1, 0.1, 0.1);
     // leds[8].position.set(0.1, 0.1, 0.1);
@@ -318,20 +317,68 @@ function onWindowResize() {
 function onDocumentMouseDown( event ) {
     event.preventDefault();
 
-    b_light = !b_light;
-    var send_val = {
-        state : b_light,
-        color : randomColor
+
+    mode++;
+    if(mode == 4){
+        mode = 0;
     }
-    send_val = JSON.stringify(send_val);
-    sock.send(send_val); 
-    // sock.send("true");
+    console.log(mode);
 
-    if(b_light) {
-
-        cloud_light.visible = true;
-       }else{
+    if(mode == 0) {
         cloud_light.visible = false;
+        var send_val = {
+            state : false,
+            color : light_weather
+        }
+        send_val = JSON.stringify(send_val);
+        sock.send(send_val);
+        for(var i = 0; i < LEDNUM; i++) {
+            leds[i].visible = false;
+        }
+    }else if(mode == 1) {
+        cloud_light.visible = true;
+        var send_val = {
+            state : true,
+            color : light_cool
+        }
+        send_val = JSON.stringify(send_val);
+        sock.send(send_val);
+        scene.remove(cloud_light);
+        leds_sphere = new THREE.SphereBufferGeometry( 0.005, 16, 8 );
+        cloud_light = new THREE.PointLight(light_cool,4.5, 3 );
+        cloud_light.add( new THREE.Mesh( leds_sphere, new THREE.MeshBasicMaterial( { color: 0xff0000 } ) ) );
+        scene.add( cloud_light );
+        for(var i = 0; i < LEDNUM; i++) {
+            if(lights_data[i]['state']) {
+                leds[i].visible = true;
+            }
+        }
+
+    }else if(mode == 2){
+        var send_val = {
+            state : true,
+            color : light_warm
+        }
+        send_val = JSON.stringify(send_val);
+        sock.send(send_val);
+        scene.remove(cloud_light);
+        leds_sphere = new THREE.SphereBufferGeometry( 0.005, 16, 8 );
+        cloud_light = new THREE.PointLight(light_warm,4.5, 3 );
+        cloud_light.add( new THREE.Mesh( leds_sphere, new THREE.MeshBasicMaterial( { color: 0xff0000 } ) ) );
+        scene.add( cloud_light );
+    }else if(mode == 3) {
+        var send_val = {
+            state : true,
+            color : light_weather
+        }
+        send_val = JSON.stringify(send_val);
+        sock.send(send_val);
+        scene.remove(cloud_light);
+        leds_sphere = new THREE.SphereBufferGeometry( 0.005, 16, 8 );
+
+        cloud_light = new THREE.PointLight(light_weather,4.5, 3 );
+        cloud_light.add( new THREE.Mesh( leds_sphere, new THREE.MeshBasicMaterial( { color: 0xff0000 } ) ) );
+        scene.add( cloud_light );
     }
 }
 
@@ -345,11 +392,6 @@ function animate() {
 }
 
 function render() {
-
-    var timer = Date.now() * 0.0005;
-
-    // camera.position.x = Math.cos( timer ) * 3;
-    // camera.position.z = Math.sin( timer ) * 3;
 
     camera.lookAt( cameraTarget );
 
