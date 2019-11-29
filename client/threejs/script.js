@@ -170,7 +170,7 @@ function init() {
         new THREE.CylinderGeometry( 0.003, 0.003, 0.35, 8 ), 
         new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x101010 } )
     );
-    rope_mesh.position.y = -0.4;
+    rope_mesh.position.y = -0.35;
     rope_mesh.position.x = 0.25;
 
 
