@@ -57,11 +57,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/kumasan/Project/LightServer/LightServer.csproj",
+      "projectUniqueName": "/Users/kumasan/Desktop/class/opendesign/LightServer/LightServer.csproj",
       "projectName": "LightServer",
-      "projectPath": "/Users/kumasan/Project/LightServer/LightServer.csproj",
+      "projectPath": "/Users/kumasan/Desktop/class/opendesign/LightServer/LightServer.csproj",
       "packagesPath": "/Users/kumasan/.nuget/packages/",
-      "outputPath": "/Users/kumasan/Project/LightServer/obj/",
+      "outputPath": "/Users/kumasan/Desktop/class/opendesign/LightServer/obj/",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"

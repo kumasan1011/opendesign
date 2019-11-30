@@ -11,3 +11,16 @@
 /Users/kumasan/Project/LightServer/obj/Debug/netcoreapp3.0/LightServer.pdb
 /Users/kumasan/Project/LightServer/bin/Debug/netcoreapp3.0/Newtonsoft.Json.dll
 /Users/kumasan/Project/LightServer/obj/Debug/netcoreapp3.0/LightServer.csproj.CopyComplete
+/Users/kumasan/Desktop/class/opendesign/LightServer/bin/Debug/netcoreapp3.0/LightServer
+/Users/kumasan/Desktop/class/opendesign/LightServer/bin/Debug/netcoreapp3.0/LightServer.deps.json
+/Users/kumasan/Desktop/class/opendesign/LightServer/bin/Debug/netcoreapp3.0/LightServer.runtimeconfig.json
+/Users/kumasan/Desktop/class/opendesign/LightServer/bin/Debug/netcoreapp3.0/LightServer.runtimeconfig.dev.json
+/Users/kumasan/Desktop/class/opendesign/LightServer/bin/Debug/netcoreapp3.0/LightServer.dll
+/Users/kumasan/Desktop/class/opendesign/LightServer/bin/Debug/netcoreapp3.0/LightServer.pdb
+/Users/kumasan/Desktop/class/opendesign/LightServer/bin/Debug/netcoreapp3.0/Newtonsoft.Json.dll
+/Users/kumasan/Desktop/class/opendesign/LightServer/obj/Debug/netcoreapp3.0/LightServer.csprojAssemblyReference.cache
+/Users/kumasan/Desktop/class/opendesign/LightServer/obj/Debug/netcoreapp3.0/LightServer.AssemblyInfoInputs.cache
+/Users/kumasan/Desktop/class/opendesign/LightServer/obj/Debug/netcoreapp3.0/LightServer.AssemblyInfo.cs
+/Users/kumasan/Desktop/class/opendesign/LightServer/obj/Debug/netcoreapp3.0/LightServer.csproj.CopyComplete
+/Users/kumasan/Desktop/class/opendesign/LightServer/obj/Debug/netcoreapp3.0/LightServer.dll
+/Users/kumasan/Desktop/class/opendesign/LightServer/obj/Debug/netcoreapp3.0/LightServer.pdb

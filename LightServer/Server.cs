@@ -71,9 +71,24 @@ namespace LightServer
         public string color;
     }
 
-    class Server
+    class InfoData
     {
-        public Server()
+        public InfoData(int cn, int an, int sn) {
+            cNum = cn;
+            aNum = an;
+            sNum = sn;
+        }
+        [JsonProperty("client_num")]
+        public int cNum;
+        [JsonProperty("alive_num")]
+        public int aNum;
+        [JsonProperty("state_on_num")]
+        public int sNum;
+    }
+
+    class MainServer
+    {
+        public MainServer()
         {
             clients = new List<Client>();
             groups = new List<List<int>>();
@@ -99,6 +114,22 @@ namespace LightServer
             var alives = clients.FindAll(c => (c.alive && c.id != except));
             var orders = alives.OrderBy(i => Guid.NewGuid()).ToArray();
             return orders.Take(LightGroupeSize);
+        }
+
+        public int GetAllCount()
+        {
+            return clients.Count;
+        }
+
+
+        public int GetAliveCount()
+        {
+            return clients.FindAll(c => c.alive).Count;
+        }
+
+        public int GetStateOnCount()
+        {
+            return clients.FindAll(c => c.state).Count;
         }
 
         public async Task Start(int port)
@@ -199,5 +230,119 @@ namespace LightServer
         static List<List<int>> groups;
         static int idCount;
         const int LightGroupeSize = 13;
+    }
+
+    class InfoServer
+    {
+        public InfoServer(MainServer m)
+        {
+            clients = new List<Client>();
+            ms = m;
+            idCount = 0;
+        }
+
+        static void SendMessage(int idx, string msg)
+        {
+            var client = clients[idx];
+            // Console.WriteLine("send : {0}", msg);
+            client.Send(Encoding.GetEncoding("UTF-8").GetBytes(msg));
+        }
+
+        static void SendMessageToAllClients(string msg)
+        {
+            // Console.WriteLine("send all : {0}", clients.Count);
+            for (int i = 0; i < clients.Count; ++i)
+                SendMessage(i, msg);
+        }
+
+        public async Task SendInfo()
+        {
+            // 1秒毎にstatusを送信
+            while (true)
+            {
+                var i = new InfoData(ms.GetAllCount(), ms.GetAliveCount(), ms.GetStateOnCount());
+                SendMessageToAllClients(JsonConvert.SerializeObject(i));
+                await Task.Delay(1000);
+            }
+        }
+
+        public async Task Start(int port)
+        {
+            Console.WriteLine("port : " + port);
+            string uri = "http://+:" + port.ToString() + "/";
+            // httpListenerで待ち受け
+            var httpListener = new HttpListener();
+            httpListener.Prefixes.Add(uri);
+            httpListener.Start();
+            
+            while (true)
+            {
+                // 接続待機
+                var listenerContext = await httpListener.GetContextAsync();
+                if (listenerContext.Request.IsWebSocketRequest)
+                {
+                    /// httpのハンドシェイクがWebSocketならWebSocket接続開始
+                    var temp = ProcessRequest(listenerContext);
+                }
+                else
+                {
+                    /// httpレスポンスを返す
+                    listenerContext.Response.StatusCode = 400;
+                    listenerContext.Response.Close();
+                }
+            }
+        }
+
+        static async Task ProcessRequest(HttpListenerContext listenerContext)
+        {
+            Console.WriteLine("{0}:New Session:{1}", DateTime.Now.ToString(), listenerContext.Request.RemoteEndPoint.Address.ToString());
+ 
+            /// WebSocketの接続完了を待機してWebSocketオブジェクトを取得する
+            var w = (await listenerContext.AcceptWebSocketAsync(subProtocol:null)).WebSocket;
+
+            var client = new Client(idCount++, false, w);
+
+            clients.Add(client);
+
+            Console.WriteLine("sendmessage {0}", client.id);
+ 
+            /// WebSocketの送受信ループ
+            while (client.ws.State == WebSocketState.Open)
+            {
+                try
+                {
+                    var buff = new ArraySegment<byte>(new byte[4096 * 32]);
+ 
+                    /// 受信待機
+                    var ret = await client.ws.ReceiveAsync(buff, System.Threading.CancellationToken.None);
+ 
+                    /// テキスト
+                    if (ret.MessageType == WebSocketMessageType.Text)
+                    {
+                        Console.WriteLine("{0}:String Received:{1}", DateTime.Now.ToString(), listenerContext.Request.RemoteEndPoint.Address.ToString());
+                    }
+                    else if (ret.MessageType == WebSocketMessageType.Close) /// クローズ
+                    {
+                        Console.WriteLine("{0}:Session Close:{1}", DateTime.Now.ToString(), listenerContext.Request.RemoteEndPoint.Address.ToString());
+                        break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Console.WriteLine("{0}:Session Abort:{1}", DateTime.Now.ToString(), listenerContext.Request.RemoteEndPoint.Address.ToString());
+                    break;
+                }
+            }
+
+            //clients.Remove(client);
+            //client.ws.Dispose();
+
+            client.alive = false;
+        }
+
+        static int idCount;
+        private MainServer ms;
+        static List<Client> clients;
     }
 }
